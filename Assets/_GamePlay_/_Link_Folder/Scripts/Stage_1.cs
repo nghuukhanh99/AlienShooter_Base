@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Luna.Unity;
 
 public class Stage_1 : Ply_Stage
 {
@@ -18,6 +19,7 @@ public class Stage_1 : Ply_Stage
 
     public override void OnInit()
     {
+        Analytics.LogEvent(Analytics.EventType.LevelStart, 1);
         //enemy
         for (int i = 0; i < rectangePoints.Length; i++)
         {

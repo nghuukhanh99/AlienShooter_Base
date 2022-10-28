@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Luna.Unity;
 
 public class Ply_Level : Ply_Singleton<Ply_Level>
 {
@@ -12,6 +13,7 @@ public class Ply_Level : Ply_Singleton<Ply_Level>
 
     private void Start()
     {
+
         GameObject bg = Screen.height > Screen.width ? bgVertical : bgHorizontal;
         Instantiate(bg);
 

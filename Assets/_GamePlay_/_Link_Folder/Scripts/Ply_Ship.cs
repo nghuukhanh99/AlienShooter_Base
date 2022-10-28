@@ -14,7 +14,7 @@ public class Ply_Ship : MonoBehaviour
 
     public BulletPoint[] bulletPos;
 
-    
+
     private GameObject currentShip;
 
     private float speed = 300f;
@@ -27,6 +27,7 @@ public class Ply_Ship : MonoBehaviour
     CounterTime counterTime = new CounterTime();
 
     bool canControl = false;
+    bool canShoot;
 
     ShipState shipState = ShipState.Alive;
 
@@ -63,7 +64,7 @@ public class Ply_Ship : MonoBehaviour
 
     internal void LevelUp()
     {
-        if (bulletIndex + 1 < bulletPos.Length )
+        if (bulletIndex + 1 < bulletPos.Length)
         {
             bulletIndex++;
             Ply_SoundManager.Ins.PlayFx(FxType.PowerUp);
@@ -88,9 +89,16 @@ public class Ply_Ship : MonoBehaviour
         {
             Ply_Pool.Ins.Spawn(PoolType.Bullet, bulletPos[bulletIndex].bulletPoints[i].position, bulletPos[bulletIndex].bulletPoints[i].rotation);
         }
-
-        counterTime.CounterStart(null, Fire, bulletPos[bulletIndex].rateFire);
-        Ply_SoundManager.Ins.PlayFx(FxType.Shoot);
+        if (shipState == ShipState.Alive || shipState == ShipState.Revived)
+        {
+            counterTime.CounterStart(null, Fire, bulletPos[bulletIndex].rateFire);
+            Ply_SoundManager.Ins.PlayFx(FxType.Shoot);
+        }
+        if (shipState == ShipState.Reviving)
+        {
+            return;
+        }
+        
     }
 
     public void Moving(Vector3 targetPoint, float duration, UnityAction callBack, float delay = 0)
@@ -109,6 +117,10 @@ public class Ply_Ship : MonoBehaviour
         holdEffect.SetActive(active);
     }
 
+    public void MoveToSceen()
+    {
+        
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (Ply_GameManager.gameState == GameState.GamePlay)
@@ -119,26 +131,35 @@ public class Ply_Ship : MonoBehaviour
                 case ShipState.Alive:
                     Ply_Pool.Ins.Spawn(PoolType.VFX_Explore, tf.position, Quaternion.identity).transform.localScale = Vector3.one * 3;
                     shipState = ShipState.Reviving;
-                    skin.localPosition = Vector3.up * -10;
                     Ply_UIManager.Ins.OpenUI(UIID.Alert);
-
-                    skin.DOLocalMove(Vector3.zero, 1.5f).OnComplete(() =>
+                    if(shipState == ShipState.Reviving)
                     {
-                        shipAnim.SetBool("Fade", true);
+                        skin.localPosition = Vector3.up * -30;
 
                         StartCoroutine(IEDelayAction(
-                            () =>
-                            {
-                                shipAnim.SetBool("Fade", false);
-                                shipState = ShipState.Revived;
-                                Ply_UIManager.Ins.CloseUI(UIID.Alert);
-                            }, 2f));
-                    });
-                    
+                         () =>
+                         {
+                             skin.DOLocalMove(Vector3.zero, 1.5f).OnComplete(() =>
+                             {
+                                 counterTime.CounterStart(null, Fire, bulletPos[bulletIndex].rateFire);
+
+                                 shipAnim.SetBool("Fade", true);
+                                 StartCoroutine(IEDelayAction(
+                                     () =>
+                                     {
+                                         shipAnim.SetBool("Fade", false);
+                                         shipState = ShipState.Revived;
+                                         Ply_UIManager.Ins.CloseUI(UIID.Alert);
+                                     }, 0f));
+                             });
+
+                         }, 0.3f));
+                    }
                     break;
 
              //dang chet
                 case ShipState.Reviving:
+
                     break;
 
              //chet len thu 2 la lose luon

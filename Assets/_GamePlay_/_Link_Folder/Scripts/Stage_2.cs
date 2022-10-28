@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Luna.Unity;
 
 public class Stage_2 : Ply_Stage
 {
@@ -14,6 +15,8 @@ public class Stage_2 : Ply_Stage
 
     public override void OnInit()
     {
+        Analytics.LogEvent(Analytics.EventType.LevelStart, 2);
+
         for (int i = 0; i < hearthPoints.Length; i++)
         {
             Ply_Enemy enemy = Ply_Pool.Ins.Spawn<Ply_Enemy>(PoolType.Enemy, startPoint[i % 2].position, Quaternion.identity);
